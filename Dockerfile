@@ -35,5 +35,8 @@ COPY --from=build /app/dist /app/dist
 # 포트 노출
 EXPOSE 5143
 
+# health check
+CMD curl -f http://wodydtns.duckdns.org:5143/ || exit 1
+
 # 애플리케이션 실행
 CMD ["serve", "-s", "dist", "-l", "5143", "-n"]
