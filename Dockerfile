@@ -9,6 +9,9 @@ COPY package*.json ./
 # 의존성 설치
 RUN npm ci
 
+# adapter-static 설치
+RUN npm install --save-dev @sveltejs/adapter-static
+
 # 소스 코드 복사
 COPY . .
 
