@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm ci
 
 # adapter-static 설치
-RUN npm install --save-dev @sveltejs/adapter-static
+RUN npm install --save-dev @sveltejs/adapter-static serve
 
 # 소스 코드 복사
 COPY . .
@@ -36,4 +36,4 @@ COPY --from=build /app/dist /app/dist
 EXPOSE 5143
 
 # 애플리케이션 실행
-CMD ["node", "build"]
+CMD ["serve", "-s", "dist", "-l", "5143", "-n"]
