@@ -1,5 +1,5 @@
 # 멀티 스테이지 빌드
-FROM node:18-alpine AS build
+FROM node:latest AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # Production 스테이지
-FROM node:18-alpine AS production
+FROM node:latest AS production
 
 WORKDIR /app
 
@@ -30,8 +30,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # 빌드된 파일 복사 (dist가 아닌 build 폴더)
-COPY --from=build /app/build /app/build
-COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/dist /app/dist
 
 # 포트 노출
 EXPOSE 5143
