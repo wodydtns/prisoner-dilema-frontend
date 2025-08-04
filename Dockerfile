@@ -1,38 +1,37 @@
-# Build stage
-FROM node:latest AS build
+# 멀티 스테이지 빌드
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
+# package.json과 package-lock.json 복사
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production=false
+# 의존성 설치
+RUN npm ci
 
-# Copy source code
+# 소스 코드 복사
 COPY . .
 
-# Build the application
+# SvelteKit 빌드 (build 폴더 생성)
 RUN npm run build
 
-# Production stage - 정적 파일만 제공하는 경량 이미지
-FROM alpine:latest
+# Production 스테이지
+FROM node:18-alpine AS production
 
-# 필요한 패키지 설치 (curl for health check)
-RUN apk add --no-cache curl
-
-# 빌드된 파일 복사
-COPY --from=build /app/dist /app/dist
-
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# 포트 노출 (실제로는 사용하지 않음, 문서화 목적)
-EXPOSE 3000
+# package.json 복사
+COPY package*.json ./
 
-# Health check (파일 존재 확인)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD test -f /app/dist/index.html || exit 1
+# production 의존성만 설치
+RUN npm ci --only=production
 
-# 컨테이너가 종료되지 않도록 유지
-CMD ["tail", "-f", "/dev/null"]
+# 빌드된 파일 복사 (dist가 아닌 build 폴더)
+COPY --from=build /app/build /app/build
+COPY --from=build /app/package.json /app/package.json
+
+# 포트 노출
+EXPOSE 5143
+
+# 애플리케이션 실행
+CMD ["node", "build"]
