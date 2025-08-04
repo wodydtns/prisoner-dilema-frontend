@@ -10,7 +10,8 @@ COPY package*.json ./
 RUN npm ci
 
 # adapter-static 설치
-RUN npm install --save-dev @sveltejs/adapter-static serve
+RUN npm install --save-dev @sveltejs/adapter-static 
+RUN npm install -g serve
 
 # 소스 코드 복사
 COPY . .
@@ -30,7 +31,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # 빌드된 파일 복사 (dist가 아닌 build 폴더)
-COPY --from=build /app/dist /app/dist
+COPY --from=build /app/dist ./dist
 
 # 포트 노출
 EXPOSE 5143
